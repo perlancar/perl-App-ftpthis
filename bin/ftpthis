@@ -40,6 +40,7 @@ sub run {
     require Net::FTPServer;
 
     my $dir = @ARGV ? $ARGV[0] : Cwd::getcwd();
+    (-d $dir) or die "$dir is not a directory\n";
 
     # pick an empty port
     my $port = $Opts{port} // Net::EmptyPort::empty_port(2020);
@@ -61,33 +62,20 @@ _
     # run!
     my $class;
     if ($Opts{rw}) {
-        $class = "Net::FTPServer::Full::Server";
-        Module::Load::load($class);
+        $class = "Net::FTPServer::ftpthis_Full::Server";
     } else {
-        $class = "App::ftpthis::ROServer";
+        $class = "Net::FTPServer::ftpthis_RO::Server";
     }
+    Module::Load::load($class);
     say "Exporting $dir over FTP, listening on port $port ...";
     my $ftps = $class->run(["-C", $confpath]);
 
 }
 
-# TODO: when --rw, don't allow running as root
-
 # MAIN
 
 parse_cmdline();
 run();
-
-package App::ftpthis::ROServer;
-use parent qw(Net::FTPServer::RO::Server);
-
-sub user_login_hook {
-    my ($self, $user, $user_is_anon) = @_;
-    # Net::FTPServer::RO::Server tries to look up user 'ftp' to drop privs to.
-    # this is not always available, some OS'es might use 'nobody' etc.
-    my $path = $self->config("root directory");
-    chroot $path or die "Can't chroot $path: $!";
-}
 
 1;
 # ABSTRACT: Export the current directory over FTP
@@ -111,8 +99,15 @@ Allow write access (not yet implemented):
 =head1 DESCRIPTION
 
 This script simplifies FTP sharing. Just run the script and the current
-directory will be shared over FTP. Convenient for testing or development. There
-is currently no authentication provided (FTP access is anonymous).
+directory will be shared over FTP.
+
+Unlike most FTP server implementation which uses C<chroot> (a privileged
+operation, requires running as root or special security setting), this
+implementation "chroots" by prepending the root directory and making sure that
+all paths stay beneath it.
+
+This script is meant to be for testing/development and personal/LAN use, not
+production/Internet.
 
 
 =head1 OPTIONS
