@@ -1,0 +1,140 @@
+#!/usr/bin/perl
+
+use 5.010001;
+use strict;
+use warnings;
+
+use Getopt::Long;
+
+# VERSION
+# DATE
+
+my %Opts;
+
+sub parse_cmdline {
+    Getopt::Long::Configure("nopass_through");
+    my $res = GetOptions(
+        'port=i'         => \$Opts{port},
+        #'rw'             => sub { $Opts{rw} = 1 },
+        'help|h'         => sub {
+            print <<USAGE;
+Usage:
+  ftpthis [options] [directory]
+  ftpthis --help
+Options:
+  --port, -p
+For more details, see the manpage/documentation.
+USAGE
+            exit 0;
+        },
+    );
+    exit 99 if !$res;
+}
+
+sub run {
+    require Cwd;
+    require File::Slurp::Tiny;
+    require File::Temp;
+    require Module::Load;
+    require Net::EmptyPort;
+    require Net::FTPServer;
+
+    my $dir = @ARGV ? $ARGV[0] : Cwd::getcwd();
+
+    # pick an empty port
+    my $port = $Opts{port} // Net::EmptyPort::empty_port(2020);
+
+    # create a conf
+    my $conf = <<_;
+debug: 1
+port: $port
+daemon mode: 1
+run in background: 0
+allow anonymous: 1
+home directory: /
+root directory: $dir
+_
+
+    my (undef, $confpath) = File::Temp::tempfile();
+    File::Slurp::Tiny::write_file($confpath, $conf);
+
+    # run!
+    my $class;
+    if ($Opts{rw}) {
+        $class = "Net::FTPServer::Full::Server";
+        Module::Load::load($class);
+    } else {
+        $class = "App::ftpthis::ROServer";
+    }
+    say "Exporting $dir over FTP, listening on port $port ...";
+    my $ftps = $class->run(["-C", $confpath]);
+
+}
+
+# TODO: when --rw, don't allow running as root
+
+# MAIN
+
+parse_cmdline();
+run();
+
+package App::ftpthis::ROServer;
+use parent qw(Net::FTPServer::RO::Server);
+
+sub user_login_hook {
+    my ($self, $user, $user_is_anon) = @_;
+    # Net::FTPServer::RO::Server tries to look up user 'ftp' to drop privs to.
+    # this is not always available, some OS'es might use 'nobody' etc.
+    my $path = $self->config("root directory");
+    chroot $path or die "Can't chroot $path: $!";
+}
+
+1;
+# ABSTRACT: Export the current directory over FTP
+# PODNAME: ftpthis
+
+=head1 SYNOPSIS
+
+Simple usage:
+
+ % ftpthis
+
+Specify other directory to export:
+
+ % ftpthis /media/public
+
+Allow write access (not yet implemented):
+
+ % ftpthis --rw
+
+
+=head1 DESCRIPTION
+
+This script simplifies FTP sharing. Just run the script and the current
+directory will be shared over FTP. Convenient for testing or development. There
+is currently no authentication provided (FTP access is anonymous).
+
+
+=head1 OPTIONS
+
+=over
+
+=item * --port=INT, -p
+
+Choose port. The default is to use port 2021 (or above, whichever is available).
+
+=item * --rw
+
+NOT YET IMPLEMENTED. Enable read-write access. The default is read-only.
+
+Since there is no authentication, be extra careful.
+
+
+=head1 TODO
+
+
+=head1 SEE ALSO
+
+L<App::HTTPThis>
+
+=cut
