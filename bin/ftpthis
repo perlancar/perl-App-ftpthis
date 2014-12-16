@@ -79,7 +79,7 @@ run();
 
 1;
 # ABSTRACT: Export the current directory over FTP
-# PODNAME: ftpthis
+# PODNAME:
 
 =head1 SYNOPSIS
 
