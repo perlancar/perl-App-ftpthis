@@ -125,9 +125,6 @@ NOT YET IMPLEMENTED. Enable read-write access. The default is read-only.
 Since there is no authentication, be extra careful.
 
 
-=head1 TODO
-
-
 =head1 SEE ALSO
 
 L<App::HTTPThis>
