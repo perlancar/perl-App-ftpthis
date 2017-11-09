@@ -1,0 +1,62 @@
+#!perl
+
+# DATE
+# VERSION
+
+use strict;
+use warnings;
+use App::FTPThis;
+
+App::FTPThis->new->run;
+
+# ABSTRACT: Export the current directory over anonymous FTP
+# PODNAME:
+
+=head1 SYNOPSIS
+
+ ## Export the current directory over anonymous FTP
+ $ ftp_this
+
+ ## Export the dir_name directory over FTP, specify port
+ $ https_this dir_name --port 8121
+
+ ## Show documentation about our options
+ $ ftp_this --help
+
+ ## Show the entire man page
+ $ ftp_this --man
+
+
+=head1 DESCRIPTION
+
+
+=head1 ARGUMENTS
+
+The script accepts a single optional argument: the path of the directory to
+export.
+
+=head1 OPTIONS
+
+The following options are available:
+
+=over 4
+
+=item --port PORT
+
+Start the FTP server on a specific C<PORT>. Default is 8021.
+
+=item --help
+
+Print information about the script usage and its options.
+
+=item --man
+
+Print the entire man page for the command.
+
+=back
+
+
+=head1 SEE ALSO
+
+Other scripts in the same spirit: L<http_this> (from L<App::HTTPThis>),
+L<https_this> (from L<App::HTTPThis>), L<cgi_this> (from L<App::CGIThis>).
