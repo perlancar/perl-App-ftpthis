@@ -45,6 +45,7 @@ sub run {
         "$dir/conf",
         join(
             "",
+            "root directory: $self->{root}\n",
             "allow anonymous: 1\n",
             "anonymous password check: none\n",
             "anonymous password enforce: 0\n",

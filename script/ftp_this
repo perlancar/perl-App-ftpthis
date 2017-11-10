@@ -7,6 +7,7 @@ use strict;
 use warnings;
 use App::FTPThis;
 
+die "ftp_this: Please run me as root because I need to do chroot()\n" if $>;
 App::FTPThis->new->run;
 
 # ABSTRACT: Export the current directory over anonymous FTP
@@ -28,6 +29,12 @@ App::FTPThis->new->run;
 
 
 =head1 DESCRIPTION
+
+B<SECURITY WARNING: USE THIS SCRIPT FOR TESTING ONLY AND NOT PRODUCTION.>
+
+This script exports the current directory over anonymous FTP. It chroots to the
+directory and switch to the directory owner user (or C<nobody> if directory
+owner is root, to avoid running the FTP daemon as root).
 
 
 =head1 ARGUMENTS
@@ -54,6 +61,15 @@ Print information about the script usage and its options.
 Print the entire man page for the command.
 
 =back
+
+
+=head1 TODO
+
+Support systems that do not have chroot().
+
+Support running as normal user (without doing chroot()).
+
+Support non-anonymous (read-write mode).
 
 
 =head1 SEE ALSO
