@@ -18,8 +18,8 @@ App::FTPThis->new->run;
  ## Export the current directory over anonymous FTP
  $ ftp_this
 
- ## Export the dir_name directory over FTP, specify port
- $ https_this dir_name --port 8121
+ ## Export the `dir_name` directory over FTP, specify port
+ $ ftp_this dir_name --port 8121
 
  ## Show documentation about our options
  $ ftp_this --help
@@ -33,7 +33,7 @@ App::FTPThis->new->run;
 B<SECURITY WARNING: USE THIS SCRIPT FOR TESTING ONLY AND NOT PRODUCTION.>
 
 This script exports the current directory over anonymous FTP. It chroots to the
-directory and switch to the directory owner user (or C<nobody> if directory
+directory and switches to the directory owner user (or C<nobody> if directory
 owner is root, to avoid running the FTP daemon as root).
 
 
