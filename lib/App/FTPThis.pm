@@ -68,7 +68,7 @@ sub run {
 }
 
 1;
-# ABSTRACT: Export the current directory over HTTPS
+# ABSTRACT: Export the current directory over anonymous FTP
 
 =head1 SYNOPSIS
 
